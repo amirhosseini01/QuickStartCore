@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <VersionPrefix>1.0.1</VersionPrefix>
+  </PropertyGroup>
 </Project>

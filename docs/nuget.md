@@ -54,8 +54,12 @@ dotnet nuget push D:\projects\QuickStartCore\src\Server\bin\Release\Server.1.0.0
 ```
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
- <clear />
-    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
-    <add key="nuget.my" value="D:\nugets" />
+    <packageSources>
+        <clear/>
+        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+        <add key="nuget.my" value="D:\nugets" />
+    </packageSources>
 </configuration>
 ```
+
+- and in your IDE (rider jetbrain) in my case, click on nuget manager and then restore button to load the package sources

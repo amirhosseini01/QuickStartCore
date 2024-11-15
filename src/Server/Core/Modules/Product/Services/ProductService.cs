@@ -39,7 +39,7 @@ public static class ProductService
 	{
 		var product = new Mapper.ProductMapper().InputToEntity(input);
 
-		if (input.Image is not null)
+		if (input.ImageFile is not null)
 		{
 			var imageUploadRes = await fileUploader.UploadFile(input.ImageFile);
 			if (imageUploadRes.IsFailed)
@@ -50,7 +50,7 @@ public static class ProductService
 			product.Image = imageUploadRes.Obj;
 		}
 
-		if (input.Thumbnail is not null)
+		if (input.ThumbnailFile is not null)
 		{
 			var thumbnailUploadRes = await fileUploader.UploadFile(input.ThumbnailFile);
 			if (thumbnailUploadRes.IsFailed)
@@ -76,7 +76,7 @@ public static class ProductService
 		
 		new Mapper.ProductMapper().InputToEntity(input, entity);
 		string? previous = null;
-		if (input.Image is not null)
+		if (input.ImageFile is not null)
 		{
 			var imageUploadRes = await fileUploader.UploadFile(input.ImageFile);
 			if (imageUploadRes.IsFailed)
@@ -89,7 +89,7 @@ public static class ProductService
 		}
 
 		string? previousT = null;
-		if (input.Thumbnail is not null)
+		if (input.ThumbnailFile is not null)
 		{
 			var thumbnailUploadRes = await fileUploader.UploadFile(input.ThumbnailFile);
 			if (thumbnailUploadRes.IsFailed)

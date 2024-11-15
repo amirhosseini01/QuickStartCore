@@ -41,7 +41,7 @@ public static class ProductSellerService
     {
         var entity = new Mapper.ProductSellerMapper().InputToEntity(input);
 
-        if (input.Logo is not null)
+        if (input.LogoFile is not null)
         {
             var uploadRes = await fileUploader.UploadFile(input.LogoFile);
             if (uploadRes.IsFailed)
@@ -68,7 +68,7 @@ public static class ProductSellerService
         new Mapper.ProductSellerMapper().InputToEntity(input, entity);
 
         string? previous = null;
-        if (input.Logo is not null)
+        if (input.LogoFile is not null)
         {
             var uploadRes = await fileUploader.UploadFile(input.LogoFile);
             if (uploadRes.IsFailed)

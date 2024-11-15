@@ -37,7 +37,7 @@ public static class ProductCategoryService
     {
         var entity = new Mapper.ProductCategoryMapper().InputToEntity(input);
 
-        if (input.Image is not null)
+        if (input.ImageFile is not null)
         {
             var uploadRes = await fileUploader.UploadFile(input.ImageFile);
             if (uploadRes.IsFailed)
@@ -63,7 +63,7 @@ public static class ProductCategoryService
         
         new Mapper.ProductCategoryMapper().InputToEntity(input, entity);
         string? previous = null;
-        if (input.Image is not null)
+        if (input.ImageFile is not null)
         {
             var uploadRes = await fileUploader.UploadFile(input.ImageFile);
             if (uploadRes.IsFailed)

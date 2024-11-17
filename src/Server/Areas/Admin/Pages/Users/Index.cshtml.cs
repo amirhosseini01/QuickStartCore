@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Server.Core.Commons;
 using Server.Core.Commons.Datatables;
 using Server.Core.Modules.User.Dto;
+using Server.Core.Modules.User.Models;
 using Server.Core.Modules.User.Repositories.Contracts;
 using Server.Core.Modules.User.Services;
 
 namespace Server.Areas.Admin.Pages.Users;
-public class IndexModel(IUserRepo userRepo) : PageModel
+public class IndexModel(IUserRepo repo) : PageModel
 {
 	public UserInputUpdate Input { get; set; }
     public UserFilter Filter { get; set; }
@@ -15,21 +16,21 @@ public class IndexModel(IUserRepo userRepo) : PageModel
     {
         if (ModelState.IsNotValid())
         {
-            return ResponseBase.ReturnJson(ResponseBase.Failed<string>(ModelState.GetModeStateErrors()));
+            return ResponseBase.ReturnJsonInvalidData<AppUser>(modelState: ModelState);
         }
 
-        var entity = await userRepo.GetByIdAsync(routeVal: routeVal, ct: ct);
+        var entity = await repo.GetByIdAsync(route: routeVal, ct: ct);
         if (entity is null)
         {
-            return ResponseBase.ReturnJson(ResponseBase.Failed<string>(Messages.NotFound));
+            return ResponseBase.ReturnJsonNotFound<AppUser>();
         }
 
-        return ResponseBase.ReturnJson(ResponseBase.Success(entity));
+        return ResponseBase.ReturnJsonSuccess(entity);
     }
 
     public async Task<JsonResult> OnPostListAsync(UserFilter filter, DataTableFilter dataTableFilter, CancellationToken ct = default)
     {
-        return ResponseBase.ReturnJson(await userRepo.GetDataTableAsync(filter: filter, dataTableFilter: dataTableFilter, ct));
+        return ResponseBase.ReturnJson(await repo.GetDataTableAsync(filter: filter, dataTableFilter: dataTableFilter, ct));
     }
 
     public async Task<JsonResult> OnPostAddAsync(UserInput input, CancellationToken ct = default)
@@ -39,7 +40,7 @@ public class IndexModel(IUserRepo userRepo) : PageModel
             return ResponseBase.ReturnJson(ResponseBase.Failed<string>(ModelState.GetModeStateErrors()));
         }
 
-        var addRes = await userRepo.AddAsync(input: input, ct: ct);
+        var addRes = await repo.AddAsync(input: input, ct: ct);
         return ResponseBase.ReturnJson(addRes);
     }
 
@@ -50,7 +51,7 @@ public class IndexModel(IUserRepo userRepo) : PageModel
             return ResponseBase.ReturnJson(ResponseBase.Failed<string>(ModelState.GetModeStateErrors()));
         }
 
-        var editRes = await userRepo.UpdateAsync(routeVal: routeVal, input: input, ct: ct);
+        var editRes = await repo.UpdateAsync(route: routeVal, input: input, ct: ct);
         return ResponseBase.ReturnJson(editRes);
     }
 
@@ -61,7 +62,7 @@ public class IndexModel(IUserRepo userRepo) : PageModel
             return ResponseBase.ReturnJson(ResponseBase.Failed<string>(ModelState.GetModeStateErrors()));
         }
 
-        var res = await userRepo.RemoveAsync(routeVal: routeVal, ct: ct);
+        var res = await repo.RemoveAsync(route: routeVal, ct: ct);
 
         return ResponseBase.ReturnJson(res);
     }

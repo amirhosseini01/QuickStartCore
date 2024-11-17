@@ -20,16 +20,16 @@ public class ModelsModel(IProductModelRepo repo) : PageModel
     {
         if (ModelState.IsNotValid())
         {
-            return ResponseBase.ReturnJson(ResponseBase.Failed<string>(ModelState.GetModeStateErrors()));
+            return ResponseBase.ReturnJsonInvalidData<ProductModel>(modelState: ModelState);
         }
 
         var entity = await repo.GetByIdAsync(route: routeVal, ct: ct);
         if (entity is null)
         {
-            return ResponseBase.ReturnJson(ResponseBase.Failed<string>(Messages.NotFound));
+            return ResponseBase.ReturnJsonNotFound<ProductModel>();
         }
 
-        return ResponseBase.ReturnJson(ResponseBase.Success(entity));
+        return ResponseBase.ReturnJsonSuccess(entity);
     }
 
     public async Task<JsonResult> OnPostListAsync(ProductModelFilter filter, DataTableFilter dataTableFilter, CancellationToken ct = default)

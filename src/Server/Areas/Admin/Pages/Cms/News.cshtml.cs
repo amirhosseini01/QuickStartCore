@@ -4,14 +4,17 @@ using Server.Core.Commons;
 using Server.Core.Commons.Datatables;
 using Server.Core.Commons.UploadFile;
 using Server.Core.Modules.Cms.Dto;
+using Server.Core.Modules.Cms.Models;
 using Server.Core.Modules.Cms.Repositories.Contracts;
 using Server.Core.Modules.Cms.Services;
 
 namespace Server.Areas.Admin.Pages.Cms;
+
 public class NewsModel(INewsRepo repo, FileUploader fileUploader) : PageModel
 {
     public NewsInputUpdate Input { get; set; }
     public NewsFilter Filter { get; set; }
+
     public void OnGet()
     {
     }
@@ -19,17 +22,18 @@ public class NewsModel(INewsRepo repo, FileUploader fileUploader) : PageModel
     public async Task<JsonResult> OnGetByIdAsync(IdDto routeVal, CancellationToken ct = default)
     {
         if (ModelState.IsNotValid())
-        {
-            return ResponseBase.ReturnJson(ResponseBase.Failed<string>(ModelState.GetModeStateErrors()));
-        }
+            if (ModelState.IsNotValid())
+            {
+                return ResponseBase.ReturnJsonInvalidData<News>(modelState: ModelState);
+            }
 
         var entity = await repo.GetByIdAsync(route: routeVal, ct: ct);
         if (entity is null)
         {
-            return ResponseBase.ReturnJson(ResponseBase.Failed<string>(Messages.NotFound));
+            return ResponseBase.ReturnJsonNotFound<News>();
         }
 
-        return ResponseBase.ReturnJson(ResponseBase.Success(entity));
+        return ResponseBase.ReturnJsonSuccess(entity);
     }
 
     public async Task<JsonResult> OnPostListAsync(NewsFilter filter, DataTableFilter dataTableFilter, CancellationToken ct = default)

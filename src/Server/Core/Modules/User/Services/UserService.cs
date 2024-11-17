@@ -27,9 +27,9 @@ public static class UserService
             ct: ct);
     }
 
-    public static async Task<AppUser?> GetByIdAsync(this IUserRepo repo, IdDto routeVal, CancellationToken ct = default)
+    public static async Task<AppUser?> GetByIdAsync(this IUserRepo repo, IdDto route, CancellationToken ct = default)
     {
-        return await repo.FindAsync(id: routeVal.Id, ct: ct);
+        return await repo.FindAsync(id: route.Id, ct: ct);
     }
 
     public static async Task<ResponseDto<string>> AddAsync(this IUserRepo repo, UserInput input, CancellationToken ct = default)
@@ -40,9 +40,9 @@ public static class UserService
         return ResponseBase.Success<string>();
     }
 
-    public static async Task<ResponseDto<string>> UpdateAsync(this IUserRepo repo, IdDto routeVal, UserInput input, CancellationToken ct = default)
+    public static async Task<ResponseDto<string>> UpdateAsync(this IUserRepo repo, IdDto route, UserInput input, CancellationToken ct = default)
     {
-        var entity = await repo.GetByIdAsync(routeVal: routeVal, ct: ct);
+        var entity = await repo.GetByIdAsync(route: route, ct: ct);
         if (entity is null)
         {
             return ResponseBase.Failed<string>(Messages.NotFound);
@@ -53,9 +53,9 @@ public static class UserService
         return ResponseBase.Success<string>();
     }
 
-    public static async Task<ResponseDto<string>> RemoveAsync(this IUserRepo repo, IdDto routeVal, CancellationToken ct = default)
+    public static async Task<ResponseDto<string>> RemoveAsync(this IUserRepo repo, IdDto route, CancellationToken ct = default)
     {
-        var entity = await repo.GetByIdAsync(routeVal: routeVal, ct: ct);
+        var entity = await repo.GetByIdAsync(route: route, ct: ct);
         if (entity is null)
         {
             return ResponseBase.Failed<string>(Messages.NotFound);

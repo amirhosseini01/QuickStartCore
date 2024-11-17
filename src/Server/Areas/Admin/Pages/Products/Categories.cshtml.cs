@@ -4,14 +4,17 @@ using Server.Core.Commons;
 using Server.Core.Commons.Datatables;
 using Server.Core.Commons.UploadFile;
 using Server.Core.Modules.Product.Dto;
+using Server.Core.Modules.Product.Models;
 using Server.Core.Modules.Product.Repositories.Contracts;
 using Server.Core.Modules.Product.Services;
 
 namespace Server.Areas.Admin.Pages.Products;
+
 public class CategoriesModel(IProductCategoryRepo repo, FileUploader fileUploader) : PageModel
 {
     public ProductCategoryInput Input { get; set; }
     public ProductCategoryFilter Filter { get; set; }
+
     public void OnGet()
     {
     }
@@ -20,16 +23,16 @@ public class CategoriesModel(IProductCategoryRepo repo, FileUploader fileUploade
     {
         if (ModelState.IsNotValid())
         {
-            return ResponseBase.ReturnJson(ResponseBase.Failed<string>(ModelState.GetModeStateErrors()));
+            return ResponseBase.ReturnJsonInvalidData<ProductCategory>(modelState: ModelState);
         }
 
         var entity = await repo.GetByIdAsync(route: routeVal, ct: ct);
         if (entity is null)
         {
-            return ResponseBase.ReturnJson(ResponseBase.Failed<string>(Messages.NotFound));
+            return ResponseBase.ReturnJsonNotFound<ProductCategory>();
         }
 
-        return ResponseBase.ReturnJson(ResponseBase.Success(entity));
+        return ResponseBase.ReturnJsonSuccess(entity);
     }
 
     public async Task<JsonResult> OnPostListAsync(ProductCategoryFilter filter, DataTableFilter dataTableFilter, CancellationToken ct = default)
@@ -44,7 +47,7 @@ public class CategoriesModel(IProductCategoryRepo repo, FileUploader fileUploade
             return ResponseBase.ReturnJson(ResponseBase.Failed<string>(ModelState.GetModeStateErrors()));
         }
 
-        var addRes = await repo.AddAsync(fileUploader,input, ct: ct);
+        var addRes = await repo.AddAsync(fileUploader, input, ct: ct);
         return ResponseBase.ReturnJson(addRes);
     }
 

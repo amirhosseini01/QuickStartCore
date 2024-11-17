@@ -4,6 +4,7 @@ using Server.Core.Commons;
 using Server.Core.Commons.Datatables;
 using Server.Core.Commons.UploadFile;
 using Server.Core.Modules.Product.Dto;
+using Server.Core.Modules.Product.Models;
 using Server.Core.Modules.Product.Repositories.Contracts;
 using Server.Core.Modules.Product.Services;
 
@@ -20,16 +21,16 @@ public class BrandsModel(IProductBrandRepo repo, FileUploader fileUploader) : Pa
     {
         if (ModelState.IsNotValid())
         {
-            return ResponseBase.ReturnJson(ResponseBase.Failed<string>(ModelState.GetModeStateErrors()));
+            return ResponseBase.ReturnJsonInvalidData<ProductBrand>(modelState: ModelState);
         }
 
         var entity = await repo.GetByIdAsync(route: routeVal, ct: ct);
         if (entity is null)
         {
-            return ResponseBase.ReturnJson(ResponseBase.Failed<string>(Messages.NotFound));
+            return ResponseBase.ReturnJsonNotFound<ProductBrand>();
         }
 
-        return ResponseBase.ReturnJson(ResponseBase.Success(entity));
+        return ResponseBase.ReturnJsonSuccess(entity);
     }
 
     public async Task<JsonResult> OnPostListAsync(ProductBrandFilter filter, DataTableFilter dataTableFilter, CancellationToken ct = default)

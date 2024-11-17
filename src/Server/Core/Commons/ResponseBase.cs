@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Server.Core.Commons;
 
@@ -13,9 +14,38 @@ public static class ResponseBase
 		Converters = { new JsonStringEnumConverter() }
 	};
 
-	public static JsonResult ReturnJson(object obj)
+	public static JsonResult ReturnJson(object obj, int? statusCode = null)
 	{
-		return new(obj, CustomJsonSerializerOptions);
+		return new JsonResult(value: obj)
+		{
+			SerializerSettings = CustomJsonSerializerOptions,
+			StatusCode = statusCode
+		};
+	}
+	
+	public static JsonResult ReturnJsonFail<T>(string message, int? statusCode = null)
+	{
+		return ReturnJson(obj: Failed<T>(message), statusCode: statusCode);
+	}
+	
+	public static JsonResult ReturnJsonFail<T>(List<string> message, int? statusCode = null)
+	{
+		return ReturnJson(obj: Failed<T>(message), statusCode: statusCode);
+	}
+	
+	public static JsonResult ReturnJsonNotFound<T>()
+	{
+		return ReturnJsonFail<T>(message: Messages.NotFound, statusCode: StatusCodes.Status404NotFound);
+	}
+	
+	public static JsonResult ReturnJsonInvalidData<T>(ModelStateDictionary modelState)
+	{
+		return ReturnJsonFail<T>(message: modelState.GetModeStateErrors(), statusCode: StatusCodes.Status400BadRequest);
+	}
+	
+	public static JsonResult ReturnJsonSuccess<T>(T? obj = default)
+	{
+		return ReturnJson(obj: Success(obj), statusCode: StatusCodes.Status200OK);
 	}
 
 	public static ResponseDto<T> Failed<T>(string message, T? obj = default)

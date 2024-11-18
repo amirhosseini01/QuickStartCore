@@ -11,8 +11,8 @@ using Server.Core.Modules.Product.Services;
 namespace Server.Areas.Admin.Pages.Products;
 public class IndexModel(IProductRepo repo, FileUploader fileUploader) : PageModel
 {
-    public required ProductInput Input { get; set; }
-    public required ProductFilter Filter { get; set; }
+    public ProductInput Input { get; set; }
+    public ProductFilter Filter { get; set; }
     public void OnGet()
     {
     }

@@ -9,24 +9,50 @@ using Server.Core.Commons;
 using Server.Core.Data;
 using Server.Core.Modules.Product.Models;
 using Server.Core.Modules.Product.Repositories.Implementations;
+using Server.Core.Modules.User.Models;
 using Server.Test.Fixtures;
 
 namespace Server.Test.Areas.Pages.Products;
 
-public class BrandsTest
+public class ProductsTest
 {
     [Fact]
     public async Task OnGetByIdAsync_ValidId_ReturnsObject()
     {
         // arrange
         await using var context = TestDatabaseFixture.CreateContext();
-        var repo = new ProductBrandRepo(context: context);
-        var pageModel = new BrandsModel(repo: repo, fileUploader: null);
+        var repo = new ProductRepo(context: context);
+        var pageModel = new IndexModel(repo: repo, fileUploader: null);
         
         await context.Database.BeginTransactionAsync();
-        var entity = new ProductBrand
+       
+        
+        var entity = new Product
         {
-            Title = "1324"
+            Title = "1324",
+            ShortDescription = "1234",
+            Description = "1234",
+            ProductComments = null,
+            ProductModels = null,
+            ProductStocks = null,
+            OrderDetails = null,
+            ProductBrand  = new ProductBrand()
+            {
+                Title = "1234"
+            },
+            ProductCategory = new ProductCategory()
+            {
+                Title = "1234"
+            },
+            ProductSeller = new ProductSeller
+            {
+                Title = "1324",
+                PhoneNumber = "09191234567",
+                User = new AppUser()
+                {
+                    UserName = "1234"
+                }
+            } 
         };
         await context.AddAsync(entity);
         await context.SaveChangesAsync();
@@ -39,7 +65,7 @@ public class BrandsTest
         // assert
         var jsonResult = Assert.IsType<JsonResult>(result);
         Assert.NotNull(jsonResult.Value);
-        var resultVal = (ResponseDto<ProductBrand>)jsonResult.Value;
+        var resultVal = (ResponseDto<Product>)jsonResult.Value;
         Assert.True(resultVal.IsSuccess);
         Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
     }
@@ -51,8 +77,8 @@ public class BrandsTest
     {
         // arrange
         await using var context = TestDatabaseFixture.CreateContext();
-        var repo = new ProductBrandRepo(context: context);
-        var pageModel = new BrandsModel(repo: repo, fileUploader: null);
+        var repo = new ProductRepo(context: context);
+        var pageModel = new IndexModel(repo: repo, fileUploader: null);
         pageModel.ModelState.AddModelError("Id", "Id is required");
         var routeVal = new IdDto { Id = id };
         
@@ -62,7 +88,7 @@ public class BrandsTest
         // assert
         var jsonResult = Assert.IsType<JsonResult>(result);
         Assert.NotNull(jsonResult.Value);
-        var resultVal = (ResponseDto<ProductBrand>)jsonResult.Value;
+        var resultVal = (ResponseDto<Product>)jsonResult.Value;
         Assert.True(resultVal.IsFailed);
         Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
     }
@@ -72,13 +98,44 @@ public class BrandsTest
     {
         // arrange
         await using var context = TestDatabaseFixture.CreateContext();
-        var repo = new ProductBrandRepo(context: context);
-        var pageModel = new BrandsModel(repo: repo, fileUploader: null);
+        var repo = new ProductRepo(context: context);
+        var pageModel = new IndexModel(repo: repo, fileUploader: null);
         
         await context.Database.BeginTransactionAsync();
-        var entity = new ProductBrand
+        
+        var brand = new ProductBrand()
         {
-            Title = "1324"
+            Title = "1234"
+        };
+        await context.AddAsync(brand);
+        await context.SaveChangesAsync();
+        
+        var entity = new Product
+        {
+            Title = "1324",
+            ShortDescription = "1234",
+            Description = "1234",
+            ProductComments = null,
+            ProductModels = null,
+            ProductStocks = null,
+            OrderDetails = null,
+            ProductBrand  = new ProductBrand()
+            {
+                Title = "1234"
+            },
+            ProductCategory = new ProductCategory()
+            {
+                Title = "1234"
+            },
+            ProductSeller = new ProductSeller
+            {
+                Title = "1324",
+                PhoneNumber = "09191234567",
+                User = new AppUser()
+                {
+                    UserName = "1234"
+                }
+            } 
         };
         await context.AddAsync(entity);
         await context.SaveChangesAsync();
@@ -93,7 +150,7 @@ public class BrandsTest
         // assert
         var jsonResult = Assert.IsType<JsonResult>(result);
         Assert.NotNull(jsonResult.Value);
-        var resultVal = (ResponseDto<ProductBrand>)jsonResult.Value;
+        var resultVal = (ResponseDto<Product>)jsonResult.Value;
         Assert.True(resultVal.IsFailed);
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
     }

@@ -12,7 +12,7 @@ namespace Server.Areas.Admin.Pages.Products;
 public class SellersModel(IProductSellerRepo repo, FileUploader fileUploader) : PageModel
 {
     public ProductSellerInput Input { get; set; }
-    public required ProductSellerFilter Filter { get; set; }
+    public ProductSellerFilter Filter { get; set; }
     public void OnGet()
     {
     }

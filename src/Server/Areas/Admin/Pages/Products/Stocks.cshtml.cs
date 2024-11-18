@@ -12,7 +12,7 @@ namespace Server.Areas.Admin.Pages.Products;
 public class StocksModel(IProductStockRepo repo) : PageModel
 {
 	public ProductStock Input { get; set; }
-	public required ProductStockFilter Filter { get; set; }
+	public ProductStockFilter Filter { get; set; }
 
 	public void OnGet()
 	{

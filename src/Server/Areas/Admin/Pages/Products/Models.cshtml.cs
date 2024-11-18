@@ -11,7 +11,7 @@ namespace Server.Areas.Admin.Pages.Products;
 public class ModelsModel(IProductModelRepo repo) : PageModel
 {
     public ProductModel Input { get; set; }
-    public required ProductModelFilter Filter { get; set; }
+    public ProductModelFilter Filter { get; set; }
     public void OnGet()
     {
     }

@@ -1,32 +1,27 @@
-﻿using System.Collections.Specialized;
-using System.Globalization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
-using Server.Areas.Admin.Pages.Products;
+using Server.Areas.Admin.Pages.Users;
 using Server.Core.Commons;
-using Server.Core.Data;
-using Server.Core.Modules.Product.Models;
-using Server.Core.Modules.Product.Repositories.Implementations;
+using Server.Core.Modules.User.Models;
+using Server.Core.Modules.User.Repositories.Implementations;
 using Server.Test.Fixtures;
 
-namespace Server.Test.Areas.Pages.Products;
+namespace Server.Test.Areas.Pages.Users;
 
-public class BrandsTest
+public class UsersTest
 {
     [Fact]
     public async Task OnGetByIdAsync_ValidId_ReturnsObject()
     {
         // arrange
         await using var context = TestDatabaseFixture.CreateContext();
-        var repo = new ProductBrandRepo(context: context);
-        var pageModel = new BrandsModel(repo: repo, fileUploader: null);
+        var repo = new UserRepo(context: context);
+        var pageModel = new IndexModel(repo: repo);
         
         await context.Database.BeginTransactionAsync();
-        var entity = new ProductBrand
+        var entity = new AppUser
         {
-            Title = "1324"
+            UserName = "1324"
         };
         await context.AddAsync(entity);
         await context.SaveChangesAsync();
@@ -39,7 +34,7 @@ public class BrandsTest
         // assert
         var jsonResult = Assert.IsType<JsonResult>(result);
         Assert.NotNull(jsonResult.Value);
-        var resultVal = (ResponseDto<ProductBrand>)jsonResult.Value;
+        var resultVal = (ResponseDto<AppUser>)jsonResult.Value;
         Assert.True(resultVal.IsSuccess);
         Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
     }
@@ -51,8 +46,8 @@ public class BrandsTest
     {
         // arrange
         await using var context = TestDatabaseFixture.CreateContext();
-        var repo = new ProductBrandRepo(context: context);
-        var pageModel = new BrandsModel(repo: repo, fileUploader: null);
+        var repo = new UserRepo(context: context);
+        var pageModel = new IndexModel(repo: repo);
         pageModel.ModelState.AddModelError("Id", "Id is required");
         var routeVal = new IdDto { Id = id };
         
@@ -62,7 +57,7 @@ public class BrandsTest
         // assert
         var jsonResult = Assert.IsType<JsonResult>(result);
         Assert.NotNull(jsonResult.Value);
-        var resultVal = (ResponseDto<ProductBrand>)jsonResult.Value;
+        var resultVal = (ResponseDto<AppUser>)jsonResult.Value;
         Assert.True(resultVal.IsFailed);
         Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
     }
@@ -72,13 +67,13 @@ public class BrandsTest
     {
         // arrange
         await using var context = TestDatabaseFixture.CreateContext();
-        var repo = new ProductBrandRepo(context: context);
-        var pageModel = new BrandsModel(repo: repo, fileUploader: null);
+        var repo = new UserRepo(context: context);
+        var pageModel = new IndexModel(repo: repo);
         
         await context.Database.BeginTransactionAsync();
-        var entity = new ProductBrand
+        var entity = new AppUser
         {
-            Title = "1324"
+            UserName = "1234"
         };
         await context.AddAsync(entity);
         await context.SaveChangesAsync();
@@ -93,7 +88,7 @@ public class BrandsTest
         // assert
         var jsonResult = Assert.IsType<JsonResult>(result);
         Assert.NotNull(jsonResult.Value);
-        var resultVal = (ResponseDto<ProductBrand>)jsonResult.Value;
+        var resultVal = (ResponseDto<AppUser>)jsonResult.Value;
         Assert.True(resultVal.IsFailed);
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
     }

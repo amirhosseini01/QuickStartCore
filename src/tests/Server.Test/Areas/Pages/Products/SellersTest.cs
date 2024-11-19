@@ -51,27 +51,46 @@ public class SellersTest
         Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
     }
     
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(0)]
-    public async Task OnGetByIdAsync_InvalidId_ReturnsInValid(int id)
+    [Fact]
+    public void Id_ShouldFailValidation_WhenIdIsMissing()
     {
-        // arrange
-        await using var context = TestDatabaseFixture.CreateContext();
-        var repo = new ProductSellerRepo(context: context);
-        var pageModel = new SellersModel(repo: repo, fileUploader: null);
-        pageModel.ModelState.AddModelError("Id", "Id is required");
-        var routeVal = new IdDto { Id = id };
-        
-        // act
-        var result = await pageModel.OnGetByIdAsync(routeVal: routeVal);
+        // Arrange
+        var dto = new IdDto();
 
-        // assert
-        var jsonResult = Assert.IsType<JsonResult>(result);
-        Assert.NotNull(jsonResult.Value);
-        var resultVal = (ResponseDto<ProductSeller>)jsonResult.Value;
-        Assert.True(resultVal.IsFailed);
-        Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
+        // Act
+        var validationResults = ModelStateValidationHelper.ValidateModel(dto);
+
+        // Assert
+        Assert.NotEmpty(validationResults);
+    }
+
+    [Theory]
+    [InlineData(- 1)]
+    [InlineData(0)]
+    public void Id_ShouldFailValidation_WhenIdIsOutOfRange(int invalidId)
+    {
+        // Arrange
+        var dto = new IdDto { Id = invalidId };
+
+        // Act
+        var validationResults = ModelStateValidationHelper.ValidateModel(dto);
+
+        // Assert
+        Assert.NotEmpty(validationResults);
+    }
+
+    [Fact]
+    public void Id_ShouldPassValidation_WhenIdIsValid()
+    {
+        // Arrange
+        var validId = 1; // A valid value within range
+        var dto = new IdDto { Id = validId };
+
+        // Act
+        var validationResults = ModelStateValidationHelper.ValidateModel(dto);
+
+        // Assert
+        Assert.Empty(validationResults); // No validation errors
     }
     
     [Fact]

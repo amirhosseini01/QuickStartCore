@@ -6,8 +6,7 @@ namespace Server.Core.Modules.Product.Dto;
 
 public class ProductBrandFilter
 {
-    [DisplayName(Messages.Visible)]
-    public bool? Visible { get; set; }
+    [DisplayName(Messages.Visible)] public bool? Visible { get; set; } = true;
 }
 
 public class ProductBrandInput: ProductBrand

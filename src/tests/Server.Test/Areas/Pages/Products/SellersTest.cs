@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Server.Areas.Admin.Pages.Products;
 using Server.Core.Commons;
+using Server.Core.Commons.Datatables;
 using Server.Core.Data;
+using Server.Core.Modules.Product.Dto;
 using Server.Core.Modules.Product.Models;
 using Server.Core.Modules.Product.Repositories.Implementations;
 using Server.Core.Modules.User.Models;
@@ -128,5 +130,43 @@ public class SellersTest
         var resultVal = (ResponseDto<ProductSeller>)jsonResult.Value;
         Assert.True(resultVal.IsFailed);
         Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
+    }
+    
+    [Fact]
+    public async Task OnPostListAsync_DefaultFilters_ReturnsVisibleAndMoreThan1()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new ProductSellerRepo(context: context);
+        var pageModel = new SellersModel(repo: repo, fileUploader: null);
+        var filter = new ProductSellerFilter();
+        
+        await context.Database.BeginTransactionAsync();
+        var entities = new List<ProductSeller>()
+        {
+            new()
+            {
+                Title = "1324",
+                PhoneNumber = "09191234567",
+                User = new AppUser()
+                {
+                    UserName = "1234"
+                }
+                
+            },
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+        
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+        
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<ProductSeller>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
     }
 }

@@ -28,7 +28,7 @@ public class ProductStockRepo(BaseDbContext context) : GenericRepository<Product
 
         if (dataTableFilter is not null)
         {
-            if (!string.IsNullOrEmpty(dataTableFilter.Search.Value))
+            if (dataTableFilter.Search is not null && !string.IsNullOrEmpty(dataTableFilter.Search.Value))
             {
                 query = query.Where(x =>
                     x.Product.Title.Contains(dataTableFilter.Search.Value) ||

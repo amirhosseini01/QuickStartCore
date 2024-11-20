@@ -5,6 +5,5 @@ namespace Server.Core.Modules.Cms.Dto;
 
 public class NewsCategoryFilter
 {
-    [DisplayName(Messages.Visible)]
-    public bool? Visible { get; set; }
+    [DisplayName(Messages.Visible)] public bool? Visible { get; set; } = true;
 }

@@ -6,8 +6,7 @@ namespace Server.Core.Modules.Product.Dto;
 // Admin
 public class ProductFilter
 {
-	[DisplayName(Messages.Visible)]
-	public bool? Visible { get; set; }
+	[DisplayName(Messages.Visible)] public bool? Visible { get; set; } = true;
 	
 	[DisplayName(Messages.Saleable)]
 	public bool? Saleable { get; set; }

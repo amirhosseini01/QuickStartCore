@@ -7,8 +7,7 @@ namespace Server.Core.Modules.Cms.Dto;
 
 public class NewsFilter
 {
-    [DisplayName(Messages.Visible)]
-    public bool? Visible { get; set; }
+    [DisplayName(Messages.Visible)] public bool? Visible { get; set; } = true;
 
     [DisplayName(Messages.Category)]
     public int? CategoryId { get; set; }

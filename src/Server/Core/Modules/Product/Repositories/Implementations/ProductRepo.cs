@@ -62,7 +62,7 @@ public class ProductRepo(BaseDbContext context) : GenericRepository<Models.Produ
     
     private static IQueryable<Models.Product> FilterQuery(IQueryable<Models.Product> query, DataTableFilter dataTableFilter)
     {
-        if (!string.IsNullOrEmpty(dataTableFilter.Search?.Value))
+        if (dataTableFilter.Search is not null && !string.IsNullOrEmpty(dataTableFilter.Search?.Value))
         {
             query = query.Where(x => x.Title.Contains(dataTableFilter.Search.Value));
         }

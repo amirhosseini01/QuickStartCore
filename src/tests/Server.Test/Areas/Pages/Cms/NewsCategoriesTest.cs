@@ -115,13 +115,99 @@ public class NewsCategoriesTest
     }
     
     [Fact]
-    public async Task OnPostListAsync_DefaultFilters_ReturnsVisibleAndMoreThan1()
+    public async Task OnPostListAsync_DefaultFilters_ReturnsAllAndNotEmpty()
     {
         // arrange
         await using var context = TestDatabaseFixture.CreateContext();
         var repo = new NewsCategoryRepo(context: context);
         var pageModel = new NewsCategoriesModel(repo: repo);
-        var filter = new NewsCategoryFilter();
+        var filter = new NewsCategoryFilter()
+        {
+            Visible = null
+        };
+        
+        await context.Database.BeginTransactionAsync();
+        var entities = new List<NewsCategory>()
+        {
+            new()
+            {
+                Title = "visible",
+                Visible = true
+            },
+            new()
+            {
+                Title = "invisible",
+                Visible = false
+            }
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+        
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+        
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<NewsCategory>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
+    }
+    
+    [Fact]
+    public async Task OnPostListAsync_InVisibleFilter_ReturnsInvisibleAndNotEmpty()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new NewsCategoryRepo(context: context);
+        var pageModel = new NewsCategoriesModel(repo: repo);
+        var filter = new NewsCategoryFilter()
+        {
+            Visible = false
+        };
+        
+        await context.Database.BeginTransactionAsync();
+        var entities = new List<NewsCategory>()
+        {
+            new()
+            {
+                Title = "visible",
+                Visible = true
+            },
+            new()
+            {
+                Title = "invisible",
+                Visible = false
+            }
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+        
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+        
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<NewsCategory>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
+        Assert.DoesNotContain(resultVal.Data, v=> v.Visible);
+    }
+    
+    [Fact]
+    public async Task OnPostListAsync_VisibleFilter_ReturnsVisibleAndNotEmpty()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new NewsCategoryRepo(context: context);
+        var pageModel = new NewsCategoriesModel(repo: repo);
+        var filter = new NewsCategoryFilter()
+        {
+            Visible = true
+        };
         
         await context.Database.BeginTransactionAsync();
         var entities = new List<NewsCategory>()

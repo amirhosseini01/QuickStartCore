@@ -121,14 +121,14 @@ public class BrandsTest
     }
 
     [Fact]
-    public async Task OnPostListAsync_DefaultFilters_ReturnsVisibleAndMoreThan1()
+    public async Task OnPostListAsync_VisibleFilter_ReturnsVisibleAndNotEmpty()
     {
         // arrange
         await using var context = TestDatabaseFixture.CreateContext();
         var repo = new ProductBrandRepo(context: context);
         var pageModel = new BrandsModel(repo: repo, fileUploader: null);
         var filter = new ProductBrandFilter();
-        
+
         await context.Database.BeginTransactionAsync();
         var entities = new List<ProductBrand>()
         {
@@ -145,17 +145,102 @@ public class BrandsTest
         };
         await context.AddRangeAsync(entities);
         await context.SaveChangesAsync();
-        
+
         // act
         var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
         context.ChangeTracker.Clear();
-        
+
         // assert
         var jsonResult = Assert.IsType<JsonResult>(result);
         Assert.NotNull(jsonResult.Value);
         var resultVal = (DataTableResult<ProductBrand>?)jsonResult.Value;
         Assert.NotNull(resultVal);
         Assert.NotEmpty(resultVal.Data);
-        Assert.DoesNotContain(resultVal.Data, v=> v.Visible == false);
+        Assert.DoesNotContain(resultVal.Data, v => v.Visible == false);
+    }
+
+    [Fact]
+    public async Task OnPostListAsync_InVisibleFilter_ReturnsInVisibleAndNotEmpty()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new ProductBrandRepo(context: context);
+        var pageModel = new BrandsModel(repo: repo, fileUploader: null);
+        var filter = new ProductBrandFilter()
+        {
+            Visible = false
+        };
+
+        await context.Database.BeginTransactionAsync();
+        var entities = new List<ProductBrand>()
+        {
+            new()
+            {
+                Title = "visible",
+                Visible = true
+            },
+            new()
+            {
+                Title = "invisible",
+                Visible = false
+            }
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<ProductBrand>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
+        Assert.DoesNotContain(resultVal.Data, v => v.Visible);
+    }
+
+    [Fact]
+    public async Task OnPostListAsync_NullVisibleFilters_ReturnsAllAndNotEmpty()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new ProductBrandRepo(context: context);
+        var pageModel = new BrandsModel(repo: repo, fileUploader: null);
+        var filter = new ProductBrandFilter()
+        {
+            Visible = null
+        };
+
+        await context.Database.BeginTransactionAsync();
+        var entities = new List<ProductBrand>()
+        {
+            new()
+            {
+                Title = "visible",
+                Visible = true
+            },
+            new()
+            {
+                Title = "invisible",
+                Visible = false
+            }
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<ProductBrand>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
+        Assert.Contains(resultVal.Data, v => v.Visible == false);
+        Assert.Contains(resultVal.Data, v => v.Visible);
     }
 }

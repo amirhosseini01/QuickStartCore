@@ -115,7 +115,7 @@ public class UsersTest
     }
     
     [Fact]
-    public async Task OnPostListAsync_DefaultFilters_ReturnsVisibleAndMoreThan1()
+    public async Task OnPostListAsync_DefaultFilters_ReturnsAllAndNotEmpty()
     {
         // arrange
         await using var context = TestDatabaseFixture.CreateContext();
@@ -129,6 +129,169 @@ public class UsersTest
             new()
             {
                 UserName = "1234"
+            },
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+        
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+        
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<AppUser>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
+    }
+    
+    [Fact]
+    public async Task OnPostListAsync_EmailConfirmedFilter_ReturnsNotEmpty()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new UserRepo(context: context);
+        var pageModel = new IndexModel(repo: repo);
+        var filter = new UserFilter()
+        {
+            EmailConfirmed = true
+        };
+        
+        await context.Database.BeginTransactionAsync();
+        var entities = new List<AppUser>()
+        {
+            new()
+            {
+                UserName = "1234",
+                EmailConfirmed = true
+            },
+            new()
+            {
+                UserName = "1234",
+                EmailConfirmed = false
+            },
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+        
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+        
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<AppUser>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
+    }
+    
+    [Fact]
+    public async Task OnPostListAsync_EmailConfirmedFalseFilter_ReturnsMoreThan1()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new UserRepo(context: context);
+        var pageModel = new IndexModel(repo: repo);
+        var filter = new UserFilter()
+        {
+            EmailConfirmed = false
+        };
+        
+        await context.Database.BeginTransactionAsync();
+        var entities = new List<AppUser>()
+        {
+            new()
+            {
+                UserName = "1234",
+                EmailConfirmed = true
+            },
+            new()
+            {
+                UserName = "1234",
+                EmailConfirmed = false
+            },
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+        
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+        
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<AppUser>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
+    }
+    [Fact]
+    public async Task OnPostListAsync_PhoneNumberConfirmedFilter_ReturnsMoreThan1()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new UserRepo(context: context);
+        var pageModel = new IndexModel(repo: repo);
+        var filter = new UserFilter()
+        {
+            PhoneNumberConfirmed = true
+        };
+        
+        await context.Database.BeginTransactionAsync();
+        var entities = new List<AppUser>()
+        {
+            new()
+            {
+                UserName = "1234",
+                EmailConfirmed = true
+            },
+            new()
+            {
+                UserName = "1234",
+                EmailConfirmed = false
+            },
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+        
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+        
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<AppUser>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
+    }
+    
+    [Fact]
+    public async Task OnPostListAsync_PhoneNumberConfirmedFalseFilter_ReturnsMoreThan1()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new UserRepo(context: context);
+        var pageModel = new IndexModel(repo: repo);
+        var filter = new UserFilter()
+        {
+            PhoneNumberConfirmed = false
+        };
+        
+        await context.Database.BeginTransactionAsync();
+        var entities = new List<AppUser>()
+        {
+            new()
+            {
+                UserName = "1234",
+                EmailConfirmed = true
+            },
+            new()
+            {
+                UserName = "1234",
+                EmailConfirmed = false
             },
         };
         await context.AddRangeAsync(entities);

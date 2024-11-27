@@ -133,13 +133,75 @@ public class NewsTest
     }
     
     [Fact]
-    public async Task OnPostListAsync_DefaultFilters_ReturnsVisibleAndMoreThan1()
+    public async Task OnPostListAsync_NullVisibleFilter_ReturnsAllAndNotEmpty()
     {
         // arrange
         await using var context = TestDatabaseFixture.CreateContext();
         var repo = new NewsRepo(context: context);
         var pageModel = new NewsModel(repo: repo, fileUploader: null);
-        var filter = new NewsFilter();
+        var filter = new NewsFilter()
+        {
+            Visible = null
+        };
+        
+        await context.Database.BeginTransactionAsync();
+        var entities = new List<News>()
+        {
+            new()
+            {
+                Title = "visible",
+                Visible = true,
+                Slug = "1234",
+                ShortDescription = "1234",
+                Description = "1234",
+                Image = "1234",
+                Thumbnail = "1234",
+                NewsCategory = new NewsCategory()
+                {
+                    Title = "1234"
+                }
+            },
+            new()
+            {
+                Title = "invisible",
+                Visible = false,
+                Slug = "1234",
+                ShortDescription = "1234",
+                Description = "1234",
+                Image = "1234",
+                Thumbnail = "1234",
+                NewsCategory = new NewsCategory()
+                {
+                    Title = "1234"
+                }
+            }
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+        
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+        
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<News>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
+    }
+    
+    [Fact]
+    public async Task OnPostListAsync_VisibleFilter_ReturnsVisibleAndNotEmpty()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new NewsRepo(context: context);
+        var pageModel = new NewsModel(repo: repo, fileUploader: null);
+        var filter = new NewsFilter()
+        {
+            Visible = true
+        };
         
         await context.Database.BeginTransactionAsync();
         var entities = new List<News>()
@@ -187,5 +249,130 @@ public class NewsTest
         Assert.NotNull(resultVal);
         Assert.NotEmpty(resultVal.Data);
         Assert.DoesNotContain(resultVal.Data, v=> v.Visible == false);
+    }
+    
+    [Fact]
+    public async Task OnPostListAsync_InVisibleFilter_ReturnsInVisibleAndNotEmpty()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new NewsRepo(context: context);
+        var pageModel = new NewsModel(repo: repo, fileUploader: null);
+        var filter = new NewsFilter()
+        {
+            Visible = false
+        };
+        
+        await context.Database.BeginTransactionAsync();
+        var entities = new List<News>()
+        {
+            new()
+            {
+                Title = "visible",
+                Visible = true,
+                Slug = "1234",
+                ShortDescription = "1234",
+                Description = "1234",
+                Image = "1234",
+                Thumbnail = "1234",
+                NewsCategory = new NewsCategory()
+                {
+                    Title = "1234"
+                }
+            },
+            new()
+            {
+                Title = "invisible",
+                Visible = false,
+                Slug = "1234",
+                ShortDescription = "1234",
+                Description = "1234",
+                Image = "1234",
+                Thumbnail = "1234",
+                NewsCategory = new NewsCategory()
+                {
+                    Title = "1234"
+                }
+            }
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+        
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+        
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<News>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
+        Assert.DoesNotContain(resultVal.Data, v=> v.Visible);
+    }
+    
+    [Fact]
+    public async Task OnPostListAsync_CategoryFilter_ReturnsSpecificCategoryAndNotEmpty()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new NewsRepo(context: context);
+        var pageModel = new NewsModel(repo: repo, fileUploader: null);
+        var filter = new NewsFilter()
+        {
+            Visible = null
+        };
+        
+        await context.Database.BeginTransactionAsync();
+
+        var category = new NewsCategory()
+        {
+            Title = "1234"
+        };
+        
+        var entities = new List<News>()
+        {
+            new()
+            {
+                Title = "visible",
+                Visible = true,
+                Slug = "1234",
+                ShortDescription = "1234",
+                Description = "1234",
+                Image = "1234",
+                Thumbnail = "1234",
+                NewsCategory = new NewsCategory()
+                {
+                    Title = "1234"
+                }
+            },
+            new()
+            {
+                Title = "invisible",
+                Visible = false,
+                Slug = "1234",
+                ShortDescription = "1234",
+                Description = "1234",
+                Image = "1234",
+                Thumbnail = "1234",
+                NewsCategory = category
+            }
+        };
+        await context.AddRangeAsync(entities);
+        await context.SaveChangesAsync();
+
+        filter.CategoryId = category.Id;
+        
+        // act
+        var result = await pageModel.OnPostListAsync(filter: filter, dataTableFilter: new DataTableFilter());
+        context.ChangeTracker.Clear();
+        
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (DataTableResult<News>?)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.NotEmpty(resultVal.Data);
+        Assert.DoesNotContain(resultVal.Data, v=> v.Visible);
     }
 }

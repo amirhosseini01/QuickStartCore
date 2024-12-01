@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NSubstitute;
 using Server.Areas.Admin.Pages.Products;
 using Server.Core.Commons;
 using Server.Core.Commons.Datatables;
+using Server.Core.Commons.UploadFile;
 using Server.Core.Modules.Product.Dto;
 using Server.Core.Modules.Product.Models;
 using Server.Core.Modules.Product.Repositories.Implementations;
@@ -236,5 +238,38 @@ public class BrandsTest
         Assert.NotEmpty(resultVal.Data);
         Assert.Contains(resultVal.Data, v => v.Visible == false);
         Assert.Contains(resultVal.Data, v => v.Visible);
+    }
+    
+    [Fact]
+    public async Task OnPostAddAsync_ValidInputWithFile_ReturnsSuccess()
+    {
+        // arrange
+        await using var context = TestDatabaseFixture.CreateContext();
+        var repo = new ProductBrandRepo(context: context);
+        var file = MockIFormFile.CreateMockFormFile("test.txt", "text/plain", "Mock content");
+        var fileUploader = Substitute.For<IFileUploader>();
+        fileUploader.UploadFile(file).Returns(ResponseBase.Success<string>());
+        var pageModel = new BrandsModel(repo: repo, fileUploader: fileUploader);
+        var input = new ProductBrandInput()
+        {
+            Visible = true,
+            Title = "visible",
+            LogoFile = file,
+        };
+        await context.Database.BeginTransactionAsync();
+        
+        
+        // act
+        var result = await pageModel.OnPostAddAsync(input: input);
+        context.ChangeTracker.Clear();
+        
+        // assert
+        var jsonResult = Assert.IsType<JsonResult>(result);
+        Assert.NotNull(jsonResult.Value);
+        var resultVal = (ResponseDto<string>)jsonResult.Value;
+        Assert.NotNull(resultVal);
+        Assert.True(resultVal.IsSuccess);
+        Assert.False(resultVal.IsFailed);
+        Assert.Null(resultVal.Messages);
     }
 }

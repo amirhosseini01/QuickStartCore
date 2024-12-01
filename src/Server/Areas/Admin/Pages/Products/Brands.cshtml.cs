@@ -9,7 +9,7 @@ using Server.Core.Modules.Product.Repositories.Contracts;
 using Server.Core.Modules.Product.Services;
 
 namespace Server.Areas.Admin.Pages.Products;
-public class BrandsModel(IProductBrandRepo repo, FileUploader fileUploader) : PageModel
+public class BrandsModel(IProductBrandRepo repo, IFileUploader fileUploader) : PageModel
 {
     public ProductBrandInput Input { get; set; }
     public ProductBrandFilter Filter { get; set; }

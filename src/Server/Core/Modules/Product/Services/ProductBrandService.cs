@@ -34,7 +34,7 @@ public static class ProductBrandService
         return await repo.FindAsync(id: route.Id, ct: ct);
     }
 
-    public static async Task<ResponseDto<string>> AddAsync(this IProductBrandRepo repo, FileUploader fileUploader, ProductBrandInput input, CancellationToken ct = default)
+    public static async Task<ResponseDto<string>> AddAsync(this IProductBrandRepo repo, IFileUploader fileUploader, ProductBrandInput input, CancellationToken ct = default)
     {
         var entity = new Mapper.ProductBrandMapper().InputToEntity(input);
 
@@ -53,7 +53,7 @@ public static class ProductBrandService
         return ResponseBase.Success<string>();
     }
 
-    public static async Task<ResponseDto<string>> UpdateAsync(this IProductBrandRepo repo, FileUploader fileUploader, IdDto route, ProductBrandInput input, CancellationToken ct = default)
+    public static async Task<ResponseDto<string>> UpdateAsync(this IProductBrandRepo repo, IFileUploader fileUploader, IdDto route, ProductBrandInput input, CancellationToken ct = default)
     {
         var entity = await repo.GetByIdAsync(route: route, ct: ct);
         if (entity is null)
@@ -83,7 +83,7 @@ public static class ProductBrandService
         return ResponseBase.Success<string>();
     }
 
-    public static async Task<ResponseDto<string>> RemoveAsync(this IProductBrandRepo repo, FileUploader fileUploader, IdDto route, CancellationToken ct = default)
+    public static async Task<ResponseDto<string>> RemoveAsync(this IProductBrandRepo repo, IFileUploader fileUploader, IdDto route, CancellationToken ct = default)
     {
         var entity = await repo.GetByIdAsync(route: route, ct: ct);
         if (entity is null)

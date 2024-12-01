@@ -3,7 +3,12 @@ using FileSignatures.Formats;
 
 namespace Server.Core.Commons.UploadFile;
 
-public class FileUploader
+public interface IFileUploader
+{
+    Task<ResponseDto<string>> UploadFile(IFormFile? file);
+    void DeleteFile(string fileUrl);
+}
+public class FileUploader: IFileUploader
 {
     private readonly string[] _permittedExtensions = { ".PNG", ".JPG", ".JPEG", ".WEBP" };
     private readonly UploadFileOptions _options;
